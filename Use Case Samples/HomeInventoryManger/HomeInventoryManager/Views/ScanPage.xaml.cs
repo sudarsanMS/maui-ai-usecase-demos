@@ -34,19 +34,22 @@ public partial class ScanPage : ContentPage
 
 	private async void Vm_CancelRequested(object? sender, EventArgs e)
 	{
-		Application.Current.Windows[0].Page = new ScanPage();
+		if (Shell.Current is not null)
+				await Shell.Current.GoToAsync("//Scan");
 	}
 
 	// ---------- Navigation ----------
 	private async void Vm_ItemSaved(object? sender, InventoryItem e)
 	{
-		Application.Current.Windows[0].Page = new InventoryPage();
+		if (Shell.Current is not null)
+				await Shell.Current.GoToAsync("//Inventory");
 
 	}
 
 	private async void Back_Tapped(object? sender, TappedEventArgs e)
 	{
-		Application.Current.Windows[0].Page = new InventoryPage();
+		if (Shell.Current is not null)
+				await Shell.Current.GoToAsync("//Inventory");
 
 	}
 

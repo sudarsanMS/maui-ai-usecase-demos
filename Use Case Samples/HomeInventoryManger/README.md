@@ -1,12 +1,12 @@
 # Home Inventory Manager
 
-This sample demonstrates an AI-powered Home Inventory Manager built using Syncfusion® .NET MAUI controls and Azure OpenAI. The application helps users manage household assets, track warranties and AMC contracts, store invoices and documents, monitor asset health, and receive intelligent maintenance and replacement recommendations.
+This sample demonstrates a Home Inventory Manager built with Syncfusion® .NET MAUI controls and a fully mocked AI layer. The app helps users manage household assets, track warranties and AMC contracts, store invoices and documents, monitor asset health, and view maintenance and replacement recommendations without requiring an external AI service.
 
 ## Overview
 
 Managing home appliances, electronics, furniture, and other valuable assets can become challenging over time. This sample provides a centralized system for organizing and monitoring household inventory throughout its lifecycle.
 
-The AI-powered inventory engine helps users:
+The sample helps users:
 
 - Maintain a digital inventory of household assets
 - Scan and store invoices and warranty documents
@@ -16,40 +16,30 @@ The AI-powered inventory engine helps users:
 - Predict replacement requirements
 - Analyze inventory trends
 
-The AI engine analyzes:
+The AI layer is implemented behind `IAIService` and is mocked in this repository so the demo runs without cloud credentials.
 
-- Invoice details
-- Warranty information
-- Asset categories
-- Asset age
-- Maintenance history
-- Lifecycle data
-- Usage patterns
+## Controls demonstrated
 
-Based on the AI analysis, the application automatically extracts asset information, categorizes products, recommends maintenance actions, and predicts appliance replacement timelines.
+- Syncfusion® `SfListView`
+- Syncfusion® `SfTabView`
+- Syncfusion® `SfCharts`
+- Syncfusion® `SfCircularProgressBar`
+- Syncfusion® `SfButton`
+- Syncfusion® `SfTextInputLayout`
+- Syncfusion® `SfDatePicker`
+- Syncfusion® `SfImageEditor`
+- MAUI `Shell` navigation
 
-## Key Features
+## Run instructions
 
-- Syncfusion® .NET MAUI control integration
-- Azure OpenAI-powered inventory intelligence
-- Invoice and warranty document scanning
-- Automated asset classification
-- Digital inventory management
-- Warranty and AMC tracking
-- Maintenance reminders
-- Asset valuation monitoring
-- End-of-life prediction
-- Asset health analysis
-- Analytics and reporting dashboards
-- Cross-platform .NET MAUI application
+1. Open `HomeInventoryManager.slnx` in Visual Studio 2022 with the .NET MAUI workload installed.
+2. Restore and build the solution.
+3. Select an Android, iOS, Mac Catalyst, or Windows target and run the app.
 
 ## Prerequisites
 
-Before running the sample, ensure that you have:
-
 - Visual Studio 2022 with .NET MAUI workload installed
-- .NET 9 or later
-- Azure OpenAI resource and deployment
+- .NET 10 SDK or later
 - Syncfusion® .NET MAUI packages
 - Valid Syncfusion® license key
 
@@ -70,4 +60,4 @@ Syncfusion has no liability for any damage or consequence that may arise from us
 
 By accessing, viewing, or using the samples, you acknowledge and agree that Syncfusion's samples will not allow you to seek injunctive relief in any form for any claim related to the sample.
 
-If you do not agree to this, do not view, access, utilize, or otherwise interact
+If you do not agree to this, do not view, access, utilize, or otherwise interact with the samples.

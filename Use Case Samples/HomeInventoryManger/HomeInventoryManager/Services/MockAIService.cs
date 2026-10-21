@@ -90,7 +90,7 @@ namespace HomeInventoryManager.Services
                 {
                     category = HealthCategory.Healthy;
                     recommendation = "Service Appliance";
-                    icon = "amc.png";
+                    icon = "monitor.png";
                 }
                 else if (health >= 50)
                 {

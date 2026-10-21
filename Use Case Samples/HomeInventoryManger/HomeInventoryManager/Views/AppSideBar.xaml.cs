@@ -10,7 +10,7 @@ public partial class AppSideBar : ContentView
 	}
 
 	public static readonly BindableProperty ActiveTabProperty = BindableProperty.Create(
-   nameof(ActiveTab), typeof(NavigationTab), typeof(MainPage), NavigationTab.Dashboard);
+		nameof(ActiveTab), typeof(NavigationTab), typeof(AppSideBar), NavigationTab.Dashboard);
 
 	public NavigationTab ActiveTab
 	{
@@ -20,40 +20,25 @@ public partial class AppSideBar : ContentView
 
 	private async void OnDashboardTapped(object sender, TappedEventArgs e)
 	{
-		Application.Current.Windows[0].Page = new DashboardPage();
-		//await GoToAsyncSafe(NavigationTab.Dashboard);
+		if (Shell.Current is not null)
+			await Shell.Current.GoToAsync("//Dashboard");
 	}
 
 	private async void OnInventoryTapped(object sender, TappedEventArgs e)
 	{
-		Application.Current.Windows[0].Page = new InventoryPage();
-		//await GoToAsyncSafe(NavigationTab.Inventory);
+		if (Shell.Current is not null)
+			await Shell.Current.GoToAsync("//Inventory");
 	}
 
 	private async void OnScanTapped(object sender, TappedEventArgs e)
 	{
-		Application.Current.Windows[0].Page = new ScanPage();
-		//await GoToAsyncSafe(NavigationTab.Scan);
+		if (Shell.Current is not null)
+			await Shell.Current.GoToAsync("//Scan");
 	}
 
 	private async void OnWarrantyTapped(object sender, TappedEventArgs e)
 	{
-		Application.Current.Windows[0].Page = new WarrantyPage();
-		//await GoToAsyncSafe(NavigationTab.Warranty);
-	}
-
-	private async Task GoToAsyncSafe(NavigationTab tab)
-	{
-		Page page = tab switch
-		{
-			NavigationTab.Dashboard => new DashboardPage(),
-			NavigationTab.Inventory => new InventoryPage(),
-			NavigationTab.Scan => new ScanPage(),
-			NavigationTab.Warranty => new WarrantyPage(),
-			_ => new DashboardPage()
-		};
-
-		await Application.Current.Windows[0]
-			.Page.Navigation.PushAsync(page);
+		if (Shell.Current is not null)
+			await Shell.Current.GoToAsync("//Warranty");
 	}
 }

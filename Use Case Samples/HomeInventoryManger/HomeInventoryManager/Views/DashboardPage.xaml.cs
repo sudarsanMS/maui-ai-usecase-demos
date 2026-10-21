@@ -36,7 +36,7 @@ public partial class DashboardPage : ContentPage
 	{
 		try
 		{
-			if (string.IsNullOrWhiteSpace(route))
+			if (string.IsNullOrWhiteSpace(route) || Shell.Current is null)
 				return;
 
 			await Shell.Current.GoToAsync($"//{route}");
@@ -51,6 +51,9 @@ public partial class DashboardPage : ContentPage
 	{
 		try
 		{
+			if (Shell.Current is null)
+				return;
+
 			await Shell.Current.GoToAsync("//AIAdvisor");
 		}
 		catch (Exception ex)
@@ -95,6 +98,9 @@ public partial class DashboardPage : ContentPage
 	{
 		try
 		{
+			if (Shell.Current is null)
+				return;
+
 			await Shell.Current.GoToAsync("//Scan");
 		}
 		catch (Exception ex)
@@ -107,6 +113,9 @@ public partial class DashboardPage : ContentPage
 	{
 		try
 		{
+			if (Shell.Current is null)
+				return;
+
 			await Shell.Current.GoToAsync("//Warranty");
 		}
 		catch (Exception ex)
@@ -119,7 +128,10 @@ public partial class DashboardPage : ContentPage
 	{
 		try
 		{
-			await Shell.Current.GoToAsync("//Warranty");
+			if (Shell.Current is null)
+				return;
+
+			await Shell.Current.GoToAsync("//AIAdvisor");
 		}
 		catch (Exception ex)
 		{
