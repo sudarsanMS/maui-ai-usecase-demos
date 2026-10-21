@@ -1,2 +1,3 @@
 # maui-ai-usecase-demos
-"This repository provides ready‑to‑use, AI‑powered .NET MAUI use‑case samples built with Syncfusion’s AI AssistView control. It includes fully integrated implementations, best‑practice patterns, and real‑world scenarios to help developers quickly adopt and extend AI-driven features in their MAUI applications.
+
+This repository contains a collection of AI-focused .NET MAUI samples. Some samples demonstrate Syncfusion AI AssistView scenarios, while others showcase AI-adjacent app flows and control integrations used in practical app experiences.
