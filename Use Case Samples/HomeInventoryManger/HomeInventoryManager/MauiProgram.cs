@@ -1,4 +1,4 @@
-﻿using HomeInventoryManager.Services;
+using HomeInventoryManager.Services;
 using HomeInventoryManager.ViewModel;
 using HomeInventoryManager.Views;
 using Microsoft.Extensions.Logging;
@@ -25,16 +25,6 @@ namespace HomeInventoryManager
 					fonts.AddFont("MauiMaterialAssets.ttf", "MaterialAssets");
 				});
 
-			// AI service (swap MockAIService for an Azure OpenAI implementation when keys are available)
-			builder.Services.AddSingleton<IAIService, MockAIService>();
-
-			// ViewModels (singletons so in-memory data is shared across pages)
-			builder.Services.AddSingleton<DashboardViewModel>();
-			builder.Services.AddSingleton<InventoryViewModel>();
-			builder.Services.AddSingleton<ScanViewModel>();
-			builder.Services.AddSingleton<WarrantyViewModel>();
-
-			// Pages
 			builder.Services.AddTransient<DashboardPage>();
 			builder.Services.AddTransient<InventoryPage>();
 			builder.Services.AddTransient<ScanPage>();
