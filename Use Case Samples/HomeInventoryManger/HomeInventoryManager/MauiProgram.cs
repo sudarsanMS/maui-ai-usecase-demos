@@ -25,6 +25,11 @@ namespace HomeInventoryManager
 					fonts.AddFont("MauiMaterialAssets.ttf", "MaterialAssets");
 				});
 
+			builder.Services.AddSingleton<IAIService, MockAIService>();
+			builder.Services.AddTransient<DashboardViewModel>();
+			builder.Services.AddTransient<InventoryViewModel>();
+			builder.Services.AddTransient<ScanViewModel>();
+			builder.Services.AddTransient<WarrantyViewModel>();
 			builder.Services.AddTransient<DashboardPage>();
 			builder.Services.AddTransient<InventoryPage>();
 			builder.Services.AddTransient<ScanPage>();
