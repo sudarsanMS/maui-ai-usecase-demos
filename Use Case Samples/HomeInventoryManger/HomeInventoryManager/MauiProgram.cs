@@ -2,7 +2,9 @@ using HomeInventoryManager.Services;
 using HomeInventoryManager.ViewModel;
 using HomeInventoryManager.Views;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Handlers;
 using Syncfusion.Maui.Core.Hosting;
+using Syncfusion.Maui.Toolkit.Chips;
 using Syncfusion.Maui.Toolkit.Hosting;
 
 namespace HomeInventoryManager
@@ -24,6 +26,11 @@ namespace HomeInventoryManager
 					fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
 					fonts.AddFont("MauiMaterialAssets.ttf", "MaterialAssets");
 				});
+
+			builder.ConfigureMauiHandlers(handlers =>
+			{
+				handlers.AddHandler<SfChip, ButtonHandler>();
+			});
 
 			builder.Services.AddSingleton<IAIService, MockAIService>();
 			builder.Services.AddTransient<DashboardViewModel>();
