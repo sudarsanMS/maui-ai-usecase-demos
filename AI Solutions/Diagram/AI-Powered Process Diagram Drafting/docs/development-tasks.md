@@ -7,7 +7,7 @@ Set up the page, view model, model classes, and service interfaces for the sampl
 
 Work items:
 
-- Add the ProcessDiagramPage view.
+- Add the MainPage view.
 - Add the ProcessDiagramViewModel class.
 - Add workflow model types for nodes, connectors, warnings, and response metadata.
 - Add the IWorkflowExtractionService interface.

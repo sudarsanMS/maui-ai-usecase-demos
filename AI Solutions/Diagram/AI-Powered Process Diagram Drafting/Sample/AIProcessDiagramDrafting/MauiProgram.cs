@@ -26,7 +26,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<WorkflowResponseValidator>();
         builder.Services.AddSingleton<DiagramDraftBuilder>();
         builder.Services.AddSingleton<ProcessDiagramViewModel>();
-        builder.Services.AddSingleton<ProcessDiagramPage>();
+        builder.Services.AddSingleton<MainPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

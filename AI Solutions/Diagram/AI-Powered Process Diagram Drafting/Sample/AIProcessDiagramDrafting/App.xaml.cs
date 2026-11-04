@@ -13,5 +13,5 @@ public partial class App : Application
     }
 
     protected override Window CreateWindow(IActivationState? activationState) =>
-        new(serviceProvider.GetRequiredService<ProcessDiagramPage>());
+        new(serviceProvider.GetRequiredService<MainPage>());
 }

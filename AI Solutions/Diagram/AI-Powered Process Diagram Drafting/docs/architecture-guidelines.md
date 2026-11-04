@@ -8,7 +8,7 @@ The user should not navigate to a second page for the main flow.
 
 ## Main components
 
-### ProcessDiagramPage
+### MainPage
 
 This page hosts the UI. It should contain:
 
