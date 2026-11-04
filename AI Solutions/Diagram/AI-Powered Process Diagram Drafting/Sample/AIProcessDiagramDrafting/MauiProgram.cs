@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Syncfusion.Licensing;
 using Syncfusion.Maui.Core.Hosting;
 using AIProcessDiagramDrafting.Services;
 using AIProcessDiagramDrafting.ViewModels;
@@ -9,6 +10,8 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
+        SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JBaF5cXmRCf1NpRmNGfV5yckVHYlZVRXxdQk0DNHVRdkdlWXZdcHVXQmFeUEZyX0RWYEw=");
+
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
