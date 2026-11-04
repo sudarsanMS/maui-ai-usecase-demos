@@ -33,7 +33,8 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.120" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+    <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
     <PackageReference Include="Syncfusion.Maui.Core" Version="35.1.43" />
     <PackageReference Include="Syncfusion.Maui.Diagram" Version="35.1.43" />
