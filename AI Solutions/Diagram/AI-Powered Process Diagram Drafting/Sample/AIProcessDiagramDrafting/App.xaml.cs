@@ -1,10 +1,17 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace AIProcessDiagramDrafting;
 
 public partial class App : Application
 {
-    public App(ProcessDiagramPage mainPage)
+    private readonly IServiceProvider serviceProvider;
+
+    public App(IServiceProvider serviceProvider)
     {
+        this.serviceProvider = serviceProvider;
         InitializeComponent();
-        MainPage = mainPage;
     }
+
+    protected override Window CreateWindow(IActivationState? activationState) =>
+        new(serviceProvider.GetRequiredService<ProcessDiagramPage>());
 }
