@@ -2,9 +2,9 @@ namespace AIProcessDiagramDrafting;
 
 public partial class App : Application
 {
-    public App()
+    public App(ProcessDiagramPage mainPage)
     {
         InitializeComponent();
-        MainPage = new AppShell();
+        MainPage = mainPage;
     }
 }
