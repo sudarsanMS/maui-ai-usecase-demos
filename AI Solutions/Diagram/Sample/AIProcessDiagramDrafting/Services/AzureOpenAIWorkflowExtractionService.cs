@@ -1,4 +1,6 @@
+using System.ClientModel;
 using System.Text.Json;
+using Azure;
 using Azure.AI.OpenAI;
 using AIProcessDiagramDrafting.Models;
 
@@ -9,6 +11,19 @@ public sealed class AzureOpenAIWorkflowExtractionService : AzureBaseService, IWo
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
+    };
+
+    private static readonly ChatCompletionOptions StructuredOutputOptions = new()
+    {
+        Temperature = 0f,
+        ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat(),
+        MaxOutputTokenCount = 2048
+    };
+
+    private static readonly ChatCompletionOptions PlainTextOptions = new()
+    {
+        Temperature = 0f,
+        MaxOutputTokenCount = 2048
     };
 
     private const string SystemPrompt = """
@@ -55,29 +70,171 @@ public sealed class AzureOpenAIWorkflowExtractionService : AzureBaseService, IWo
         var client = CreateClient();
         var chatClient = client.GetChatClient(DeploymentName);
 
-        var messages = new List<OpenAI.Chat.ChatMessage>
+        var messages = new List<ChatMessage>
         {
-            new OpenAI.Chat.SystemChatMessage(SystemPrompt),
-            new OpenAI.Chat.UserChatMessage($"""
+            new SystemChatMessage(SystemPrompt),
+            new UserChatMessage($"""
                 Process description:
                 {processDescription}
 
                 Draft a complete workflow that reflects this process and uses the important details from the description.
                 Prefer domain-specific actions, branch labels, and outcomes over generic placeholders.
+                Return only the JSON object.
                 """)
         };
 
-        var options = new OpenAI.Chat.ChatCompletionOptions
+        var rawResponse = await CompleteWorkflowAsync(chatClient, messages, cancellationToken);
+        return DeserializeWorkflowResponse(rawResponse);
+    }
+
+    private static async Task<string> CompleteWorkflowAsync(
+        ChatClient chatClient,
+        List<ChatMessage> messages,
+        CancellationToken cancellationToken)
+    {
+        try
         {
-            Temperature = 0f,
-            ResponseFormat = OpenAI.Chat.ChatResponseFormat.CreateJsonObjectFormat(),
-            MaxOutputTokenCount = 2048
-        };
+            return await CompleteChatAsync(chatClient, messages, StructuredOutputOptions, cancellationToken);
+        }
+        catch (Exception ex) when (IsStructuredOutputCompatibilityIssue(ex))
+        {
+            var fallbackResponse = await CompleteChatAsync(chatClient, messages, PlainTextOptions, cancellationToken);
+            return fallbackResponse;
+        }
+    }
 
+    private static async Task<string> CompleteChatAsync(
+        ChatClient chatClient,
+        List<ChatMessage> messages,
+        ChatCompletionOptions options,
+        CancellationToken cancellationToken)
+    {
         var completion = await chatClient.CompleteChatAsync(messages, options, cancellationToken);
-        var json = string.Concat(completion.Value.Content.Select(content => content.Text ?? string.Empty));
+        return string.Concat(completion.Value.Content.Select(content => content.Text ?? string.Empty));
+    }
 
-        return JsonSerializer.Deserialize<WorkflowResponse>(json, JsonOptions)
-            ?? throw new InvalidOperationException("Azure OpenAI returned an empty workflow response.");
+    private static WorkflowResponse DeserializeWorkflowResponse(string responseText)
+    {
+        if (TryDeserializeWorkflowResponse(responseText, out var workflow))
+        {
+            return workflow;
+        }
+
+        if (TryExtractJsonObject(responseText, out var json) && TryDeserializeWorkflowResponse(json, out workflow))
+        {
+            return workflow;
+        }
+
+        throw new InvalidOperationException(
+            "Azure OpenAI returned content that could not be parsed as a workflow JSON object.");
+    }
+
+    private static bool TryDeserializeWorkflowResponse(string json, out WorkflowResponse workflow)
+    {
+        try
+        {
+            workflow = JsonSerializer.Deserialize<WorkflowResponse>(json, JsonOptions)
+                ?? throw new JsonException("The response deserialized to null.");
+            return true;
+        }
+        catch (JsonException)
+        {
+            workflow = null!;
+            return false;
+        }
+    }
+
+    private static bool TryExtractJsonObject(string text, out string json)
+    {
+        var startIndex = text.IndexOf('{');
+        if (startIndex < 0)
+        {
+            json = string.Empty;
+            return false;
+        }
+
+        var depth = 0;
+        var inString = false;
+        var escaped = false;
+
+        for (var index = startIndex; index < text.Length; index++)
+        {
+            var current = text[index];
+
+            if (inString)
+            {
+                if (escaped)
+                {
+                    escaped = false;
+                }
+                else if (current == '\\')
+                {
+                    escaped = true;
+                }
+                else if (current == '"')
+                {
+                    inString = false;
+                }
+
+                continue;
+            }
+
+            if (current == '"')
+            {
+                inString = true;
+                continue;
+            }
+
+            if (current == '{')
+            {
+                depth++;
+            }
+            else if (current == '}')
+            {
+                depth--;
+                if (depth == 0)
+                {
+                    json = text[startIndex..(index + 1)];
+                    return true;
+                }
+            }
+        }
+
+        json = string.Empty;
+        return false;
+    }
+
+    private static bool IsStructuredOutputCompatibilityIssue(Exception exception)
+    {
+        if (exception is RequestFailedException requestFailedException)
+        {
+            return requestFailedException.Status is 400 or 409 or 415 or 422
+                || ContainsStructuredOutputHint(requestFailedException.Message)
+                || ContainsStructuredOutputHint(requestFailedException.ErrorCode);
+        }
+
+        if (exception is ClientResultException clientResultException)
+        {
+            return clientResultException.Status is 400 or 409 or 415 or 422
+                || ContainsStructuredOutputHint(clientResultException.Message);
+        }
+
+        return ContainsStructuredOutputHint(exception.Message);
+    }
+
+    private static bool ContainsStructuredOutputHint(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return false;
+        }
+
+        var value = text.ToLowerInvariant();
+        return value.Contains("response_format")
+            || value.Contains("structured output")
+            || value.Contains("json schema")
+            || value.Contains("json_object")
+            || value.Contains("json object")
+            || value.Contains("unsupported");
     }
 }
