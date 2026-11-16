@@ -122,6 +122,10 @@ public sealed class ProcessDiagramViewModel : INotifyPropertyChanged
             CurrentDiagram = draftBuilder.Build(workflow);
             StatusMessage = "Draft generated.";
         }
+        catch (InvalidOperationException ex)
+        {
+            StatusMessage = ex.Message;
+        }
         catch
         {
             StatusMessage = "Unable to generate the draft right now. Please try again.";

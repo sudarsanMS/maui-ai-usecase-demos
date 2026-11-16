@@ -45,7 +45,7 @@ public static class MauiProgram
             return new AzureOpenAIWorkflowExtractionService();
         }
 
-        return new FakeWorkflowExtractionService();
+        return new MissingWorkflowExtractionService();
     }
 
     private static bool HasAzureOpenAIConfiguration()
