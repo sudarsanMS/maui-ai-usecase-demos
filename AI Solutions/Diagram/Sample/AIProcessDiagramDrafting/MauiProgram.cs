@@ -40,22 +40,6 @@ public static class MauiProgram
             return new FakeWorkflowExtractionService(fakeMode);
         }
 
-        if (HasAzureOpenAIConfiguration())
-        {
-            return new AzureOpenAIWorkflowExtractionService();
-        }
-
-        return new MissingWorkflowExtractionService();
-    }
-
-    private static bool HasAzureOpenAIConfiguration()
-    {
-        var endpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
-        var deployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT");
-        var apiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY");
-
-        return !string.IsNullOrWhiteSpace(endpoint)
-            && !string.IsNullOrWhiteSpace(deployment)
-            && !string.IsNullOrWhiteSpace(apiKey);
+        return new AzureOpenAIWorkflowExtractionService();
     }
 }
