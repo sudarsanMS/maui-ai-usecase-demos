@@ -14,6 +14,12 @@ public sealed class AzureOpenAIWorkflowExtractionService : AzureBaseService, IWo
         PropertyNameCaseInsensitive = true
     };
 
+    private static readonly ChatCompletionOptions CompletionOptions = new()
+    {
+        Temperature = 0f,
+        MaxOutputTokenCount = 2048
+    };
+
     private const string SystemPrompt = """
         You are a workflow analyst and diagram drafting engine.
         Your job is to turn each business description into a workflow that is specific to that description.
@@ -74,7 +80,7 @@ public sealed class AzureOpenAIWorkflowExtractionService : AzureBaseService, IWo
         string responseText;
         try
         {
-            var completion = await chatClient.CompleteChatAsync(messages, cancellationToken);
+            var completion = await chatClient.CompleteChatAsync(messages, CompletionOptions, cancellationToken);
             responseText = string.Concat(completion.Value.Content.Select(content => content.Text ?? string.Empty));
         }
         catch (RequestFailedException ex)
