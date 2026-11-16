@@ -13,10 +13,17 @@ public sealed class AzureOpenAIWorkflowExtractionService : AzureBaseService, IWo
 
     private const string SystemPrompt = """
         You are a workflow analyst and diagram drafting engine.
-        Turn each business description into a process diagram that is specific to that description.
+        Your job is to turn each business description into a workflow that is specific to that description.
         Do not reuse a generic sample flow or a fixed template.
 
-        Return JSON only.
+        First, identify the important details from the description:
+        - the trigger or starting event
+        - the actor or system performing each action
+        - the major business steps
+        - any approvals, validations, exceptions, hand-offs, or retries
+        - the final outcome or outcomes
+
+        Then return JSON only.
         Do not include markdown, code fences, or explanations.
         The response must match this shape:
         {
@@ -28,12 +35,14 @@ public sealed class AzureOpenAIWorkflowExtractionService : AzureBaseService, IWo
 
         Important rules:
         - Use the description's real nouns, actors, documents, systems, and outcomes.
-        - Model approvals, validations, retries, exceptions, escalations, and hand-offs as explicit steps when the description implies them.
-        - Use Decision nodes only when the description implies a branch such as if/else, approved/rejected, valid/invalid, pass/fail, or similar.
-        - Keep node labels concise, but specific to the process.
+        - Make the flow complete enough to be useful as a draft, not just a sentence-by-sentence summary.
+        - Create a distinct node for every major step.
+        - Use Decision nodes only when the description implies a real branch such as if/else, approved/rejected, valid/invalid, pass/fail, or similar.
+        - Label branch connectors clearly, such as Yes/No, Approved/Rejected, Valid/Invalid, Success/Failure, or the named condition.
+        - Keep node labels concise but specific to the process.
         - The title should summarize the process in natural language.
         - Stay within the app limits: no more than 20 nodes, 6 decision nodes, and 30 connectors.
-        - If the description is vague, infer the most likely workflow and add a warning that notes the assumption.
+        - If the description is vague or missing details, infer the most likely workflow and add a warning that notes the assumption.
         - Do not invent unrelated steps.
         - Do not generate coordinates.
         - Do not add unsupported workflow steps.
@@ -53,8 +62,8 @@ public sealed class AzureOpenAIWorkflowExtractionService : AzureBaseService, IWo
                 Process description:
                 {processDescription}
 
-                Draft a workflow that reflects this process and is meaningfully different from other descriptions.
-                Prefer domain-specific actions and branches over generic placeholders.
+                Draft a complete workflow that reflects this process and uses the important details from the description.
+                Prefer domain-specific actions, branch labels, and outcomes over generic placeholders.
                 """)
         };
 

@@ -33,13 +33,5 @@ public static class MauiProgram
     }
 
     private static IWorkflowExtractionService CreateWorkflowExtractionService()
-    {
-        var fakeMode = Environment.GetEnvironmentVariable("AI_PROCESS_DIAGRAM_FAKE_MODE");
-        if (!string.IsNullOrWhiteSpace(fakeMode))
-        {
-            return new FakeWorkflowExtractionService(fakeMode);
-        }
-
-        return new AzureOpenAIWorkflowExtractionService();
-    }
+        => new AzureOpenAIWorkflowExtractionService();
 }
