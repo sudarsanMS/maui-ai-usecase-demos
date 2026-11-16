@@ -2,6 +2,7 @@ using System.ClientModel;
 using System.Text.Json;
 using Azure;
 using Azure.AI.OpenAI;
+using OpenAI.Chat;
 using AIProcessDiagramDrafting.Models;
 
 namespace AIProcessDiagramDrafting.Services;
@@ -11,19 +12,6 @@ public sealed class AzureOpenAIWorkflowExtractionService : AzureBaseService, IWo
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
-    };
-
-    private static readonly ChatCompletionOptions StructuredOutputOptions = new()
-    {
-        Temperature = 0f,
-        ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat(),
-        MaxOutputTokenCount = 2048
-    };
-
-    private static readonly ChatCompletionOptions PlainTextOptions = new()
-    {
-        Temperature = 0f,
-        MaxOutputTokenCount = 2048
     };
 
     private const string SystemPrompt = """
@@ -83,34 +71,26 @@ public sealed class AzureOpenAIWorkflowExtractionService : AzureBaseService, IWo
                 """)
         };
 
-        var rawResponse = await CompleteWorkflowAsync(chatClient, messages, cancellationToken);
-        return DeserializeWorkflowResponse(rawResponse);
-    }
-
-    private static async Task<string> CompleteWorkflowAsync(
-        ChatClient chatClient,
-        List<ChatMessage> messages,
-        CancellationToken cancellationToken)
-    {
+        string responseText;
         try
         {
-            return await CompleteChatAsync(chatClient, messages, StructuredOutputOptions, cancellationToken);
+            var completion = await chatClient.CompleteChatAsync(messages, cancellationToken);
+            responseText = string.Concat(completion.Value.Content.Select(content => content.Text ?? string.Empty));
         }
-        catch (Exception ex) when (IsStructuredOutputCompatibilityIssue(ex))
+        catch (RequestFailedException ex)
         {
-            var fallbackResponse = await CompleteChatAsync(chatClient, messages, PlainTextOptions, cancellationToken);
-            return fallbackResponse;
+            throw new InvalidOperationException(
+                $"Azure OpenAI request failed ({ex.Status}: {ex.ErrorCode}). Check the endpoint, deployment name, and API key.",
+                ex);
         }
-    }
+        catch (ClientResultException ex)
+        {
+            throw new InvalidOperationException(
+                $"Azure OpenAI request failed ({ex.Status}). Check the endpoint, deployment name, and API key.",
+                ex);
+        }
 
-    private static async Task<string> CompleteChatAsync(
-        ChatClient chatClient,
-        List<ChatMessage> messages,
-        ChatCompletionOptions options,
-        CancellationToken cancellationToken)
-    {
-        var completion = await chatClient.CompleteChatAsync(messages, options, cancellationToken);
-        return string.Concat(completion.Value.Content.Select(content => content.Text ?? string.Empty));
+        return DeserializeWorkflowResponse(responseText);
     }
 
     private static WorkflowResponse DeserializeWorkflowResponse(string responseText)
@@ -202,39 +182,5 @@ public sealed class AzureOpenAIWorkflowExtractionService : AzureBaseService, IWo
 
         json = string.Empty;
         return false;
-    }
-
-    private static bool IsStructuredOutputCompatibilityIssue(Exception exception)
-    {
-        if (exception is RequestFailedException requestFailedException)
-        {
-            return requestFailedException.Status is 400 or 409 or 415 or 422
-                || ContainsStructuredOutputHint(requestFailedException.Message)
-                || ContainsStructuredOutputHint(requestFailedException.ErrorCode);
-        }
-
-        if (exception is ClientResultException clientResultException)
-        {
-            return clientResultException.Status is 400 or 409 or 415 or 422
-                || ContainsStructuredOutputHint(clientResultException.Message);
-        }
-
-        return ContainsStructuredOutputHint(exception.Message);
-    }
-
-    private static bool ContainsStructuredOutputHint(string? text)
-    {
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            return false;
-        }
-
-        var value = text.ToLowerInvariant();
-        return value.Contains("response_format")
-            || value.Contains("structured output")
-            || value.Contains("json schema")
-            || value.Contains("json_object")
-            || value.Contains("json object")
-            || value.Contains("unsupported");
     }
 }
